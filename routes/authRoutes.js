@@ -20,7 +20,7 @@ router.post('/login', async function (req, res) {
             })
         }
 
-        const isMatch = bcrypt.compare(password, existingUser.password);
+        const isMatch = await bcrypt.compare(password, existingUser.password);
         if (!isMatch) {
             return res.status(401).json({
                 message: "Invalid credentials. Please try again."
@@ -131,7 +131,6 @@ router.post('/forgot-password', async function (req, res) {
 
         return res.status(200).json({ message: 'Password reset email sent successfully.' });
     } catch (error) {
-        console.error('Error sending email:', error);
         return res.status(500).json({ message: 'Failed to send reset email. Please try again.' });
     }
 })
@@ -163,7 +162,6 @@ router.post('/reset-password', async (req, res) => {
 
         return res.status(200).json({ message: 'Password reset successfully.' });
     } catch (error) {
-        console.error('display error in node console section please', error);
         res.status(500).json({ message: 'An error occurred. Please try again.' });
     }
 });

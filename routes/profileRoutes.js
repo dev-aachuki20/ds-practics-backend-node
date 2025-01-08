@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/user');
 const { requireAuth } = require('../middleware');
 const { status } = require('../constants/constant');
+const bcrypt = require('bcrypt');
 
 // Update profile API
 router.post('/update', requireAuth, async function (req, res) {
@@ -33,24 +34,30 @@ router.post('/update', requireAuth, async function (req, res) {
 });
 
 // Change password
-router.post('/change-password', async function (req, res) {
+router.post('/change-password', requireAuth, async function (req, res) {
+    const { email, oldPassword, newPassword } = req.body;
     try {
-        const { password } = req.body;
-        console.log('change password api:', req.body);
+        const user = await User.findOne({ email });
 
-        //  update only the provided fields.
-        const updateFields = {};
-        if (password) updateFields.password = password;
-
-        const updatedUser = await User.findOneAndUpdate({ email: req.user.email }, updateFields, { new: true });
-
-        if (!updatedUser) {
+        if (!user) {
             return res.status(404).json({ message: 'User not found.' });
         }
 
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({
+                message: "old password is incorrect."
+            })
+        }
+        const saltRounds = 10;
+        const hashPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        user.password = hashPassword;
+        await user.save();
+
         return res.status(200).json({
-            message: 'Profile updated successfully.',
-            data: updatedUser,
+            message: 'Password changed successfully.',
+            data: user,
         });
     } catch (error) {
         return res.status(500).json({
