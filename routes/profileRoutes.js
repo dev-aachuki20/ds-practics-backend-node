@@ -35,9 +35,9 @@ router.post('/update', requireAuth, async function (req, res) {
 
 // Change password
 router.post('/change-password', requireAuth, async function (req, res) {
-    const { email, oldPassword, newPassword } = req.body;
+    const { oldPassword, newPassword } = req.body;
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: req.user.email });
 
         if (!user) {
             return res.status(404).json({ message: 'User not found.' });
@@ -49,9 +49,16 @@ router.post('/change-password', requireAuth, async function (req, res) {
                 message: "old password is incorrect."
             })
         }
+
+        // Prevent using the same old password as the new password
+        const isSamePassword = await bcrypt.compare(newPassword, user.password);
+        if (isSamePassword) {
+            return res.status(400).json({
+                message: 'New password cannot be the same as the old password.',
+            });
+        }
         const saltRounds = 10;
         const hashPassword = await bcrypt.hash(newPassword, saltRounds);
-
         user.password = hashPassword;
         await user.save();
 
