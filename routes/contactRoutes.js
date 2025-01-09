@@ -1,6 +1,6 @@
 const express = require('express');
 const Contact = require('../models/contact');
-const { requireAuth } = require('../middleware');
+const { requireAuth } = require('../middleware/auth');
 const toastr = require('express-toastr');
 const router = express.Router();
 

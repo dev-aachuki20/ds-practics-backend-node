@@ -7,7 +7,6 @@ const cookieParser = require('cookie-parser')
 const connectDB = require('./db/config');
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
-const { requireAuth } = require('./middleware');
 const i18n = require('i18n');
 const app = express();
 const port = process.env.PORT || 5000;
