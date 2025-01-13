@@ -3,6 +3,28 @@ const bcrypt = require('bcrypt');
 const { updateProfileSchema, changePasswordSchema } = require('../validations/profileValidation');
 
 
+exports.getProfileDetail = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const getUserDetail = await User.findById(userId).select('-password');
+
+        console.log('getUserDetailgetUserDetail', getUserDetail);
+
+        if (!getUserDetail) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        return res.status(200).json({
+            message: 'Profile details fetched successfully.',
+            data: getUserDetail,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: `An error occurred. Please try again. ${error}`
+        });
+    }
+}
+
 exports.updateProfile = async (req, res) => {
     try {
         const { error } = updateProfileSchema.validate(req.body);
