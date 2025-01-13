@@ -41,7 +41,7 @@ exports.loginUser = async (req, res) => {
 
         // Generate a token upon signup
         const token = jwt.sign(
-            { userId: existingUser._id, email: existingUser.email },
+            { userId: existingUser._id, email: existingUser.email, role: existingUser.role },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
@@ -74,7 +74,7 @@ exports.registerUser = async (req, res) => {
             });
         }
 
-        const { first_name, last_name, email, password, mobile_number } = req.body;
+        const { first_name, last_name, email, password, mobile_number, role = 2 } = req.body;
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -91,11 +91,12 @@ exports.registerUser = async (req, res) => {
                 email,
                 password: hashPassword,
                 mobile_number,
+                role,
                 status: status.active,
             });
 
         const token = jwt.sign(
-            { userId: user._id, email: user.email },
+            { userId: user._id, email: user.email, role: user.role },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
@@ -150,7 +151,6 @@ exports.forgotPassword = async (req, res) => {
             to: user.email,
             subject: 'Password Reset',
             html: `<p>You requested a password reset</p>
-                <p>Hashed Reset Token : ${hashedToken}</p>
                <p>Click this <a href="${resetUrl}">link</a> to reset your password.</p>`,
         };
 

@@ -7,6 +7,7 @@ const registrationSchema = Joi.object({
     password: Joi.string().required(),
     mobile_number: Joi.string().allow(null, '').trim(),
     status: Joi.boolean().default(true),
+    role: Joi.number().default(2),
     image: Joi.string().allow(null, '').trim(),
     token: Joi.string().allow(null, '').trim(),
     resetToken: Joi.string().allow(null, '').trim(),
