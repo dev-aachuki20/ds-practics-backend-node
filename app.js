@@ -7,6 +7,8 @@ const cookieParser = require('cookie-parser')
 const connectDB = require('./db/config');
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const userRoutes = require('./routes/userRoutes');
+
 const i18n = require('i18n');
 const app = express();
 const port = process.env.PORT || 5000;
@@ -40,10 +42,9 @@ app.use('/login', authRoutes);
 app.use('/signup', authRoutes);
 app.use('/forgot-password', authRoutes);
 app.use('/reset-password/:token', authRoutes);
-
 // app.use('/contacts', contactRoutes);
-
 app.use('/profile', profileRoutes);
+app.use('/users', userRoutes);
 
 
 // Route to change language (using the 'lang' query parameter or a cookie)

@@ -8,8 +8,6 @@ exports.getProfileDetail = async (req, res) => {
         const userId = req.user._id;
         const getUserDetail = await User.findById(userId).select('-password');
 
-        console.log('getUserDetailgetUserDetail', getUserDetail);
-
         if (!getUserDetail) {
             return res.status(404).json({ message: 'User not found.' });
         }
