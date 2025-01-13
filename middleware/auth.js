@@ -44,15 +44,22 @@ const requireAdmin = async (req, res, next) => {
     }
 };
 
+const requireUser = async (req, res, next) => {
+    try {
+        // Fetch the user based on the email from the token
+        const user = await User.findOne({ email: req.user.email });
 
-const authorizeRoles = async (roles) => {
-    return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
-            return res.status(403).json({ message: 'Access Denied. Insufficient permissions.' });
+        if (!user || user.role !== 2) { // role 1 for admin 2 for user
+            return res.status(403).json({ message: 'Access denied. Users only.' });
         }
+
+        // Proceed to the next middleware or route handler
         next();
-    };
+    } catch (error) {
+        console.error('User authorization error:', error);
+        return res.status(500).json({ message: 'An error occurred. Please try again.' });
+    }
 };
 
 
-module.exports = { requireAuth, requireAdmin, authorizeRoles };
+module.exports = { requireAuth, requireAdmin, requireUser };
