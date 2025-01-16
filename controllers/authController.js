@@ -92,7 +92,7 @@ exports.registerUser = async (req, res) => {
                 password: hashPassword,
                 mobile_number,
                 role,
-                status: status.active,
+                // status: status.active,
             });
 
         const token = jwt.sign(
