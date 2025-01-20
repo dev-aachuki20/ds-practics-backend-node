@@ -35,14 +35,14 @@ const userSchema = new mongoose.Schema(
         },
         status:
         {
-            type: Boolean,
-            default: true
+            type: Number,
+            enum: [0, 1],
+            default: 1
         },
         role: {
             type: Number,
             enum: [1, 2],
-            default: 2,
-            // 1 = Admin, 2 = User
+            default: 2, // 1 = Admin, 2 = User
         },
         image:
         {

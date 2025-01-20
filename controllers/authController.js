@@ -39,6 +39,13 @@ exports.loginUser = async (req, res) => {
             })
         }
 
+
+        // if (existingUser.role != 1) {
+        //     return res.status(403).json({
+        //         message: "Access denied. Only admins are allowed to log in."
+        //     })
+        // }
+
         // Generate a token upon signup
         const token = jwt.sign(
             { userId: existingUser._id, email: existingUser.email, role: existingUser.role },
@@ -74,7 +81,7 @@ exports.registerUser = async (req, res) => {
             });
         }
 
-        const { first_name, last_name, email, password, mobile_number, role = 2 } = req.body;
+        const { first_name, last_name, email, password, mobile_number, role = 2, status } = req.body;
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -92,7 +99,7 @@ exports.registerUser = async (req, res) => {
                 password: hashPassword,
                 mobile_number,
                 role,
-                // status: status.active,
+                status,
             });
 
         const token = jwt.sign(
