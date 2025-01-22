@@ -13,14 +13,14 @@ exports.createPost = async (req, res) => {
             });
 
         }
+
         const { title, description, status } = req.body;
         const authorId = req.user._id
-        const imagePaths = req.files.map((file) => file.path.replace(/\\/g, '/'));
-
+        const imageFileName = req.files.map((file) => file.filename);
         const post = new Post({
             title,
             description,
-            image: imagePaths || [],
+            image: imageFileName || [],
             author: authorId,
             status,
         });
@@ -62,9 +62,11 @@ exports.getPostById = async (req, res) => {
     }
 };
 
+
 // Update a post by ID
 exports.updatePost = async (req, res) => {
     try {
+        // Validate the request body
         const { error } = postUpdateSchema.validate(req.body);
         if (error) {
             return res.status(400).json({
@@ -76,14 +78,16 @@ exports.updatePost = async (req, res) => {
         const { title, description, status } = req.body;
 
         const authorId = req.user._id;
-        const imagePaths = req.files ? req.files.map((file) => file.path.replace(/\\/g, '/')) : [];
+        const imageFileName = req.files ? req.files.map((file) => file.filename) : [];
 
+        // Find the existing post by ID
         const existingPost = await Post.findById(id);
         if (!existingPost) {
             return res.status(404).json({ message: 'Post not found' });
         }
 
-        if (imagePaths.length > 0) {
+        // If new images are provided, delete the old ones from the server
+        if (imageFileName.length > 0) {
             existingPost.image.forEach((oldImagePath) => {
                 const fullPath = path.join(__dirname, '../../', oldImagePath);
                 if (fs.existsSync(fullPath)) {
@@ -92,9 +96,22 @@ exports.updatePost = async (req, res) => {
             });
         }
 
+        // Update the post - only include `image` if new files are provided
+        const updatedPostData = {
+            title,
+            description,
+            author: authorId,
+            status
+        };
+
+        if (imageFileName.length > 0) {
+            updatedPostData.image = imageFileName;
+        }
+
+        // Perform the update
         const updatedPost = await Post.findByIdAndUpdate(
             id,
-            { title, description, image: imagePaths, author: authorId, status },
+            updatedPostData,
             { new: true, runValidators: true }
         );
 
@@ -107,6 +124,7 @@ exports.updatePost = async (req, res) => {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
+
 
 // Delete a post by ID
 exports.deletePost = async (req, res) => {
